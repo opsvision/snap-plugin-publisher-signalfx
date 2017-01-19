@@ -1,0 +1,10 @@
+name: SignalFx
+type: publisher
+maintainer: OpsVision
+license: Apache-2.0
+description: "Publishes metrics to SignalFx."
+badge:
+  - "[![Build Status](https://travis-ci.org/opsvision/snap-plugin-publisher-signalfx.svg?branch=master)](https://travis-ci.org/opsvision/snap-plugin-publisher-signalfx)"
+ci:
+  - https://travis-ci.org/opsvision/snap-plugin-publisher-signalfx
+status: Development

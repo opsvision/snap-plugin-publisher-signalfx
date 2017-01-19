@@ -1,0 +1,21 @@
+package: github.com/opsvision/snap-plugin-publisher-signalfx
+import:
+- package: github.com/signalfx/golib
+  subpackages:
+  - datapoint
+  - sfxclient
+- package: golang.org/x/net
+  subpackages:
+  - context
+- package: google.golang.org/grpc
+  version: 0032a855ba5c8a3c8e0d71c2deef354b70af1584
+  subpackages:
+  - codes
+  - credentials
+  - grpclog
+  - internal
+  - metadata
+  - naming
+  - peer
+  - transport
+- package: github.com/intelsdi-x/snap-plugin-lib-go
