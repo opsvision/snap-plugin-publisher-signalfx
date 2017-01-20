@@ -39,21 +39,14 @@ const (
 var fileHandle *os.File
 
 type SignalFx struct {
-	initialized bool
-	token       string
-	hostname    string
-	namespace   string
+	token     string
+	hostname  string
+	namespace string
 }
 
 // Constructor
 func New() *SignalFx {
 	return new(SignalFx)
-}
-
-func (s *SignalFx) init() error {
-	s.initialized = true
-
-	return nil
 }
 
 /**
@@ -72,6 +65,11 @@ func (s *SignalFx) GetConfigPolicy() (plugin.ConfigPolicy, error) {
 		"hostname",
 		false)
 
+	// The file name to use when debugging
+	policy.AddNewStringRule([]string{NS_VENDOR, NS_PLUGIN},
+		"debug-file",
+		false)
+
 	return *policy, nil
 }
 
@@ -79,20 +77,19 @@ func (s *SignalFx) GetConfigPolicy() (plugin.ConfigPolicy, error) {
  * Publish metrics to SignalFx using the TOKEN found in the config
  */
 func (s *SignalFx) Publish(mts []plugin.Metric, cfg plugin.Config) error {
-	// Make sure we've initialized
-	if !s.initialized {
-		s.init()
-	}
-
-	// Set the output file
-	f, err := os.OpenFile("/tmp/signalfx-plugin.debug", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	// Enable debugging if the debug-file config property was set
+	fileName, err := cfg.GetString("debug-file")
 	if err != nil {
-		return err
-	}
-	defer f.Close()
+		// Open the output file
+		f, err := os.OpenFile(fileName, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+		if err != nil {
+			return err
+		}
+		defer f.Close()
 
-	// Set logging output for debugging
-	log.SetOutput(f)
+		// Set logging output for debugging
+		log.SetOutput(f)
+	}
 
 	// Fetch the token
 	token, err := cfg.GetString("token")
@@ -138,7 +135,8 @@ func (s *SignalFx) Publish(mts []plugin.Metric, cfg plugin.Config) error {
 		case float64:
 			s.sendFloatValue(float64(v))
 		default:
-			fmt.Printf("Ignoring %T: %v\n", v, v)
+			log.Printf("Ignoring %T: %v\n", v, v)
+			log.Printf("Contact the plugin author if you think this is an error")
 		}
 	}
 
@@ -146,10 +144,10 @@ func (s *SignalFx) Publish(mts []plugin.Metric, cfg plugin.Config) error {
 }
 
 /**
- *
+ * Method for sending int64 values to SignalFx
  */
 func (s *SignalFx) sendIntValue(value int64) {
-	log.Printf("%s -> %v", s.namespace, value)
+	log.Printf("Sending [int64] %s -> %v", s.namespace, value)
 
 	client := sfxclient.NewHTTPDatapointSink()
 	client.AuthToken = s.token
@@ -162,10 +160,10 @@ func (s *SignalFx) sendIntValue(value int64) {
 }
 
 /**
- *
+ * Method for sending float64 values to SignalFx
  */
 func (s *SignalFx) sendFloatValue(value float64) {
-	log.Printf("%s -> %v", s.namespace, value)
+	log.Printf("Sending [float64] %s -> %v", s.namespace, value)
 
 	client := sfxclient.NewHTTPDatapointSink()
 	client.AuthToken = s.token
