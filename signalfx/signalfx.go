@@ -31,17 +31,16 @@ import (
 )
 
 const (
-	NS_VENDOR = "opsvision"
-	NS_PLUGIN = "signalfx"
-	VERSION   = 1
+	NS_VENDOR = "opsvision"		// plugin vendor
+	NS_PLUGIN = "signalfx"		// plugin name
+	VERSION   = 1			// plugin version
 )
 
-var fileHandle *os.File
-
+// Our SignalFx object
 type SignalFx struct {
-	token     string
-	hostname  string
-	namespace string
+	token     string		// SignalFx API token
+	hostname  string		// Hostname
+	namespace string		// Metric namespace
 }
 
 // Constructor
