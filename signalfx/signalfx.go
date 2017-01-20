@@ -91,8 +91,8 @@ func (s *SignalFx) Publish(mts []plugin.Metric, cfg plugin.Config) error {
 	}
 	defer f.Close()
 
+	// Set logging output for debugging
 	log.SetOutput(f)
-	log.Printf("Inside publisher")
 
 	// Fetch the token
 	token, err := cfg.GetString("token")
@@ -149,6 +149,8 @@ func (s *SignalFx) Publish(mts []plugin.Metric, cfg plugin.Config) error {
  *
  */
 func (s *SignalFx) sendIntValue(value int64) {
+	log.Printf("%s -> %v", s.namespace, value)
+
 	client := sfxclient.NewHTTPDatapointSink()
 	client.AuthToken = s.token
 	ctx := context.Background()
@@ -163,6 +165,8 @@ func (s *SignalFx) sendIntValue(value int64) {
  *
  */
 func (s *SignalFx) sendFloatValue(value float64) {
+	log.Printf("%s -> %v", s.namespace, value)
+
 	client := sfxclient.NewHTTPDatapointSink()
 	client.AuthToken = s.token
 	ctx := context.Background()
