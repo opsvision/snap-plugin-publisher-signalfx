@@ -18,6 +18,7 @@
 
 package signalfx
 
+// Imports
 import (
 	"bytes"
 	"fmt"
@@ -30,6 +31,7 @@ import (
 	"strings"
 )
 
+// Constants
 const (
 	NS_VENDOR = "opsvision"		// plugin vendor
 	NS_PLUGIN = "signalfx"		// plugin name
