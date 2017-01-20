@@ -105,7 +105,7 @@ $ snaptel task watch f3ad05b2-3706-4991-ab29-c96e15813893
 TBD
 
 ### Issues and Roadmap
-* **Testing:** The testing being done is rudimentary at best. Need to improve the testing in [syslog_test.go](https://github.com/opsvision/snap-plugin-collector-syslog/blob/master/syslog/syslog_test.go).
+* **Testing:** The testing being done is rudimentary at best. Need to improve the testing.
 
 _Note: Please let me know if you find a bug or have feedbck on how to improve the collector._
 
