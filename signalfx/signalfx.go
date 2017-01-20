@@ -74,36 +74,14 @@ func (s *SignalFx) GetConfigPolicy() (plugin.ConfigPolicy, error) {
 
 // Publish - Publishes metrics to SignalFx using the TOKEN found in the config
 func (s *SignalFx) Publish(mts []plugin.Metric, cfg plugin.Config) error {
-	// Enable debugging if the debug-file config property was set
-	fileName, err := cfg.GetString("debug-file")
-	if err != nil {
-		// Open the output file
-		f, err := os.OpenFile(fileName, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
-		if err != nil {
-			return err
-		}
-		defer f.Close()
+	// Enable debugging
+	s.ConfigDebugLog(cfg)
 
-		// Set logging output for debugging
-		log.SetOutput(f)
-	}
+	// Set our SignalFx API token
+	s.SetToken(cfg)
 
-	// Fetch the token
-	token, err := cfg.GetString("token")
-	if err != nil {
-		return err
-	}
-	s.token = token
-
-	// Attempt to set the hostname
-	hostname, err := cfg.GetString("hostname")
-	if err != nil {
-		hostname, err = os.Hostname()
-		if err != nil {
-			hostname = "localhost"
-		}
-	}
-	s.hostname = hostname
+	// Set the hostname
+	s.SetHostname(cfg)
 
 	// Iterate over the supplied metrics
 	for _, m := range mts {
@@ -116,21 +94,21 @@ func (s *SignalFx) Publish(mts []plugin.Metric, cfg plugin.Config) error {
 		// Do some type conversion and send the data
 		switch v := m.Data.(type) {
 		case uint:
-			s.sendIntValue(int64(v))
+			s.SendIntValue(int64(v))
 		case uint32:
-			s.sendIntValue(int64(v))
+			s.SendIntValue(int64(v))
 		case uint64:
-			s.sendIntValue(int64(v))
+			s.SendIntValue(int64(v))
 		case int:
-			s.sendIntValue(int64(v))
+			s.SendIntValue(int64(v))
 		case int32:
-			s.sendIntValue(int64(v))
+			s.SendIntValue(int64(v))
 		case int64:
-			s.sendIntValue(int64(v))
+			s.SendIntValue(int64(v))
 		case float32:
-			s.sendFloatValue(float64(v))
+			s.SendFloatValue(float64(v))
 		case float64:
-			s.sendFloatValue(float64(v))
+			s.SendFloatValue(float64(v))
 		default:
 			log.Printf("Ignoring %T: %v\n", v, v)
 			log.Printf("Contact the plugin author if you think this is an error")
@@ -140,8 +118,49 @@ func (s *SignalFx) Publish(mts []plugin.Metric, cfg plugin.Config) error {
 	return nil
 }
 
-// sendIntValue - Method for sending int64 values to SignalFx
-func (s *SignalFx) sendIntValue(value int64) {
+// ConfigDebugLog will configure logging if the debug-file config
+// setting is present in the task file
+func (s *SignalFx) ConfigDebugLog(cfg plugin.Config) {
+	fileName, err := cfg.GetString("debug-file")
+	if err == nil {
+		// Open the output file
+		f, err := os.OpenFile(fileName, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+		if err != nil {
+			log.Panic(err)
+		}
+		defer f.Close()
+
+		// Set logging output for debugging
+		log.SetOutput(f)
+	}
+}
+
+// SetToken will set the token required by the SignalFx API
+func (s *SignalFx) SetToken(cfg plugin.Config) {
+	// Fetch the token
+	token, err := cfg.GetString("token")
+	if err != nil {
+		log.Panic(err)
+	}
+	s.token = token
+}
+
+// SetHostname will set the hostname from the config file, or, if absent,
+// will attempt to figure out the hostname. As a last resort, we default
+// to using localhost.
+func (s *SignalFx) SetHostname(cfg plugin.Config) {
+	hostname, err := cfg.GetString("hostname")
+	if err != nil {
+		hostname, err = os.Hostname()
+		if err != nil {
+			hostname = "localhost"
+		}
+	}
+	s.hostname = hostname
+}
+
+// SendIntValue - Method for sending int64 values to SignalFx
+func (s *SignalFx) SendIntValue(value int64) {
 	log.Printf("Sending [int64] %s -> %v", s.namespace, value)
 
 	client := sfxclient.NewHTTPDatapointSink()
@@ -154,8 +173,8 @@ func (s *SignalFx) sendIntValue(value int64) {
 	})
 }
 
-// sendFloatValue - Method for sending float64 values to SignalFx
-func (s *SignalFx) sendFloatValue(value float64) {
+// SendFloatValue - Method for sending float64 values to SignalFx
+func (s *SignalFx) SendFloatValue(value float64) {
 	log.Printf("Sending [float64] %s -> %v", s.namespace, value)
 
 	client := sfxclient.NewHTTPDatapointSink()
