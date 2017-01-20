@@ -16,7 +16,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 -->
-# Snap-Telemetry Plugin for SignalFx [![Build Status](https://travis-ci.org/opsvision/snap-plugin-publisher-signalfx.svg?branch=master)](https://travis-ci.org/opsvision/snap-plugin-publisher-signalfx) [![Go Report Card](https://goreportcard.com/badge/github.com/opsvision/snap-plugin-publisher-signalfx)](https://goreportcard.com/report/github.com/opsvision/snap-plugin-collector-signalfx)
+# Snap-Telemetry Plugin for SignalFx [![Build Status](https://travis-ci.org/opsvision/snap-plugin-publisher-signalfx.svg?branch=master)](https://travis-ci.org/opsvision/snap-plugin-publisher-signalfx) [![Go Report Card](https://goreportcard.com/badge/github.com/opsvision/snap-plugin-publisher-signalfx)](https://goreportcard.com/report/github.com/opsvision/snap-plugin-publisher-signalfx)
 Snap-Telemetry Plugin for SignalFx sends numeric values to [SignalFx](https://signalfx.com/).
 
 1. [Getting Started](#getting-started)
