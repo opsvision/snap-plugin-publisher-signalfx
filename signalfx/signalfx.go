@@ -33,16 +33,16 @@ import (
 
 // Constants
 const (
-	NS_VENDOR = "opsvision"		// plugin vendor
-	NS_PLUGIN = "signalfx"		// plugin name
-	VERSION   = 1			// plugin version
+	NS_VENDOR = "opsvision" // plugin vendor
+	NS_PLUGIN = "signalfx"  // plugin name
+	VERSION   = 1           // plugin version
 )
 
-// Our SignalFx object
+// SignalFx object
 type SignalFx struct {
-	token     string		// SignalFx API token
-	hostname  string		// Hostname
-	namespace string		// Metric namespace
+	token     string // SignalFx API token
+	hostname  string // Hostname
+	namespace string // Metric namespace
 }
 
 // New - Constructor
@@ -50,9 +50,7 @@ func New() *SignalFx {
 	return new(SignalFx)
 }
 
-/**
- * GetConfigPolicy - Returns the configPolicy for the plugin
- */
+// GetConfigPolicy - Returns the configPolicy for the plugin
 func (s *SignalFx) GetConfigPolicy() (plugin.ConfigPolicy, error) {
 	policy := plugin.NewConfigPolicy()
 
@@ -74,9 +72,7 @@ func (s *SignalFx) GetConfigPolicy() (plugin.ConfigPolicy, error) {
 	return *policy, nil
 }
 
-/**
- * Publish - Publishes metrics to SignalFx using the TOKEN found in the config
- */
+// Publish - Publishes metrics to SignalFx using the TOKEN found in the config
 func (s *SignalFx) Publish(mts []plugin.Metric, cfg plugin.Config) error {
 	// Enable debugging if the debug-file config property was set
 	fileName, err := cfg.GetString("debug-file")
@@ -144,9 +140,7 @@ func (s *SignalFx) Publish(mts []plugin.Metric, cfg plugin.Config) error {
 	return nil
 }
 
-/**
- * sendIntValue - Method for sending int64 values to SignalFx
- */
+// sendIntValue - Method for sending int64 values to SignalFx
 func (s *SignalFx) sendIntValue(value int64) {
 	log.Printf("Sending [int64] %s -> %v", s.namespace, value)
 
@@ -160,9 +154,7 @@ func (s *SignalFx) sendIntValue(value int64) {
 	})
 }
 
-/**
- * sendFloatValue - Method for sending float64 values to SignalFx
- */
+// sendFloatValue - Method for sending float64 values to SignalFx
 func (s *SignalFx) sendFloatValue(value float64) {
 	log.Printf("Sending [float64] %s -> %v", s.namespace, value)
 
