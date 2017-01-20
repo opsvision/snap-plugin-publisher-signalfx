@@ -27,7 +27,6 @@ import (
 	"golang.org/x/net/context"
 	"log"
 	"os"
-	"reflect"
 	"strings"
 )
 
@@ -139,7 +138,7 @@ func (s *SignalFx) Publish(mts []plugin.Metric, cfg plugin.Config) error {
 		case float64:
 			s.sendFloatValue(float64(v))
 		default:
-			fmt.Printf("Unknown %T: %v\n", v, v)
+			fmt.Printf("Ignoring %T: %v\n", v, v)
 		}
 	}
 
