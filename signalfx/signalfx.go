@@ -43,13 +43,13 @@ type SignalFx struct {
 	namespace string		// Metric namespace
 }
 
-// Constructor
+// New() - Constructor
 func New() *SignalFx {
 	return new(SignalFx)
 }
 
 /**
- * Returns the configPolicy for the plugin
+ * GetConfigPolicy() - Returns the configPolicy for the plugin
  */
 func (s *SignalFx) GetConfigPolicy() (plugin.ConfigPolicy, error) {
 	policy := plugin.NewConfigPolicy()
@@ -73,7 +73,7 @@ func (s *SignalFx) GetConfigPolicy() (plugin.ConfigPolicy, error) {
 }
 
 /**
- * Publish metrics to SignalFx using the TOKEN found in the config
+ * Publish() - Publish metrics to SignalFx using the TOKEN found in the config
  */
 func (s *SignalFx) Publish(mts []plugin.Metric, cfg plugin.Config) error {
 	// Enable debugging if the debug-file config property was set
