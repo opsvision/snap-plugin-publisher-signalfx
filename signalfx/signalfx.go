@@ -20,12 +20,14 @@ package signalfx
 
 import (
 	"bytes"
-	//"log"
+	"fmt"
 	"github.com/intelsdi-x/snap-plugin-lib-go/v1/plugin"
 	"github.com/signalfx/golib/datapoint"
 	"github.com/signalfx/golib/sfxclient"
 	"golang.org/x/net/context"
+	"log"
 	"os"
+	"reflect"
 	"strings"
 )
 
@@ -39,6 +41,9 @@ var fileHandle *os.File
 
 type SignalFx struct {
 	initialized bool
+	token       string
+	hostname    string
+	namespace   string
 }
 
 // Constructor
@@ -47,7 +52,6 @@ func New() *SignalFx {
 }
 
 func (s *SignalFx) init() error {
-
 	s.initialized = true
 
 	return nil
@@ -81,23 +85,22 @@ func (s *SignalFx) Publish(mts []plugin.Metric, cfg plugin.Config) error {
 		s.init()
 	}
 
-	/*
-		// Set the output file
-		f, err := os.OpenFile("/tmp/signalfx.debug", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
-		if err != nil {
-			return err
-		}
-		defer f.Close()
+	// Set the output file
+	f, err := os.OpenFile("/tmp/signalfx-plugin.debug", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
 
-		log.SetOutput(f)
-		log.Printf("Inside publisher")
-	*/
+	log.SetOutput(f)
+	log.Printf("Inside publisher")
 
 	// Fetch the token
 	token, err := cfg.GetString("token")
 	if err != nil {
 		return err
 	}
+	s.token = token
 
 	// Attempt to set the hostname
 	hostname, err := cfg.GetString("hostname")
@@ -107,23 +110,66 @@ func (s *SignalFx) Publish(mts []plugin.Metric, cfg plugin.Config) error {
 			hostname = "localhost"
 		}
 	}
+	s.hostname = hostname
 
 	// Iterate over the supplied metrics
 	for _, m := range mts {
 		var buffer bytes.Buffer
 
-		buffer.WriteString("snap.")
-		buffer.WriteString(strings.Join(m.Namespace.Strings(), "."))
+		// Convert the namespace to dot notation
+		fmt.Fprintf(&buffer, "snap.%s", strings.Join(m.Namespace.Strings(), "."))
+		s.namespace = buffer.String()
 
-		client := sfxclient.NewHTTPDatapointSink()
-		client.AuthToken = token
-		ctx := context.Background()
-		client.AddDatapoints(ctx, []*datapoint.Datapoint{
-			sfxclient.GaugeF("snap.testing", map[string]string{
-				"host": hostname,
-			}, float64(m.Data.(float64))),
-		})
+		// Do some type conversion and send the data
+		switch v := m.Data.(type) {
+		case uint:
+			s.sendIntValue(int64(v))
+		case uint32:
+			s.sendIntValue(int64(v))
+		case uint64:
+			s.sendIntValue(int64(v))
+		case int:
+			s.sendIntValue(int64(v))
+		case int32:
+			s.sendIntValue(int64(v))
+		case int64:
+			s.sendIntValue(int64(v))
+		case float32:
+			s.sendFloatValue(float64(v))
+		case float64:
+			s.sendFloatValue(float64(v))
+		default:
+			fmt.Printf("Unknown %T: %v\n", v, v)
+		}
 	}
 
 	return nil
+}
+
+/**
+ *
+ */
+func (s *SignalFx) sendIntValue(value int64) {
+	client := sfxclient.NewHTTPDatapointSink()
+	client.AuthToken = s.token
+	ctx := context.Background()
+	client.AddDatapoints(ctx, []*datapoint.Datapoint{
+		sfxclient.Gauge(s.namespace, map[string]string{
+			"host": s.hostname,
+		}, value),
+	})
+}
+
+/**
+ *
+ */
+func (s *SignalFx) sendFloatValue(value float64) {
+	client := sfxclient.NewHTTPDatapointSink()
+	client.AuthToken = s.token
+	ctx := context.Background()
+	client.AddDatapoints(ctx, []*datapoint.Datapoint{
+		sfxclient.GaugeF(s.namespace, map[string]string{
+			"host": s.hostname,
+		}, value),
+	})
 }
