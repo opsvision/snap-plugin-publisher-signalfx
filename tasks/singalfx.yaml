@@ -2,7 +2,7 @@
   version: 1
   schedule:
     type: "simple"
-    interval: "1m"
+    interval: "5s"
   max-failures: 10
   workflow:
     collect:
@@ -15,9 +15,6 @@
         /intel/psutil/vm/free: {}
         /intel/psutil/vm/used: {}
       publish:
-        - plugin_name: "file"
-          config:
-            file: "/tmp/signalfx_metrics.json"
         - plugin_name: "signalfx"
           config:
             token: "1234ABCD"
