@@ -109,7 +109,7 @@ You need to create or update a task file to use the SignalFx publisher plugin. W
 Setting|Description|Required?|
 |-------|-----------|---------|
 |debug_file|An absolute path to a log file - this makes debugging easier.|No|
-|token|The SignalFx API token.|Yes|
+|token|The SignalFx [API token](https://developers.signalfx.com).|Yes|
 
 
 ```
