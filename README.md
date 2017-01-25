@@ -22,12 +22,11 @@ Snap-Telemetry Plugin for SignalFx sends numeric values to [SignalFx](https://si
 1. [Getting Started](#getting-started)
   * [System Requirements](#system-requirements)
   * [Installation](#installation)
-  * [Configuration and Usage](#configuration-and-usage)
 2. [Documentation](#documentation)
-  * [Collected Metrics](#collected-metrics)
-  * [Examples](#examples)
-  * [Issues and Roadmap](#issues-and-roadmap)
-3. [Acknowledgements](#acknowledgements)
+  * [Configuration and Usage](#configuration-and-usage)
+  * [Publisher Output](#publisher-output)
+3. [Issues and Roadmap](#issues-and-roadmap)
+4. [Acknowledgements](#acknowledgements)
 
 ## Getting Started
 Read the system requirements, supported platforms, and installation guide for obtaining and using this Snap plugin.
@@ -40,7 +39,7 @@ All OSs currently supported by snap:
 * Darwin/amd64
 
 ### Installation
-The following sections provide a guide for obtaining the Syslog collector plugin.
+The following sections provide a guide for obtaining the plugin.
 
 #### Download
 The simplest approach is to use ```go get``` to fetch and build the plugin. The following command will place the binary in your ```$GOPATH/bin``` folder where you can load it into snap.
@@ -69,17 +68,25 @@ $ go install
 ```
 
 #### Source structure
-The following file structure provides an overview of where the files exist in the source tree. The [signalfx.go](https://github.com/opsvision/snap-plugin-publisher-signalfx/blob/master/signalfx/signalfx.go) file does all the work.
+The following file structure provides an overview of where the files exist in the source tree.
+
 ```
-snap-plugin-collector-syslog
+snap-plugin-publisher-signalfx
 ├── glide.yaml
 ├── LICENSE
 ├── main.go
+├── metadata.yml
 ├── README.md
-└── signalfx
-    ├── signalfx.go
-    └── signalfx_test.go
+├── scripts
+│   ├── load.sh
+│   └── unload.sh
+├── signalfx
+│   └── signalfx.go
+└── tasks
+    └── signalfx.yaml
 ```
+
+## Documentation
 
 ### Configuration and Usage
 Set up the [Snap framework](https://github.com/intelsdi-x/snap/blob/master/README.md#getting-started)
@@ -88,23 +95,68 @@ Set up the [Snap framework](https://github.com/intelsdi-x/snap/blob/master/READM
 Once the framework is up and running, you can load the plugin.
 ```
 $ snaptel plugin load snap-plugin-publisher-signalfx
+Plugin loaded
+Name: signalfx
+Version: 1
+Type: publisher
+Signed: false
+Loaded Time: Tue, 24 Jan 2017 20:45:48 UTC
 ```
 
 #### Task File
-TBD
+You need to create or update a task file to use the SignalFx publisher plugin. We have provided an example, _tasks/awssqs.yaml_ shown below. In our example, we utilize the psutil collector so we have some data to work with. There are two (2) configuration settings you can use.
+
+Setting|Description|Required?|
+|-------|-----------|---------|
+|debug_file|An absolute path to a log file - this makes debugging easier.|No|
+|token|The SignalFx API token.|Yes|
+
+
+```
+---
+  version: 1
+  schedule:
+    type: "simple"
+    interval: "5s"
+  max-failures: 10
+  workflow:
+    collect:
+      config:
+      metrics:
+        /intel/psutil/load/load1: {} 
+        /intel/psutil/load/load15: {}
+        /intel/psutil/load/load5: {}
+        /intel/psutil/vm/available: {}
+        /intel/psutil/vm/free: {}
+        /intel/psutil/vm/used: {}
+      publish:
+        - plugin_name: "signalfx"
+          config:
+            token: "1234ABCD"
+            debug_file: "/tmp/signalfx-debug.log"
+```
+
 Once the task file has been created, you can create and watch the task.
 ```
 $ snaptel task create -t signalfx.yaml
+Plugin loaded
+Name: signalfx
+Version: 1
+Type: publisher
+Signed: false
+Loaded Time: Tue, 24 Jan 2017 20:45:48 UTC
+
 $ snaptel task list
 ID                                       NAME                                         STATE     ...
 f3ad05b2-3706-4991-ab29-c96e15813893     Task-f3ad05b2-3706-4991-ab29-c96e15813893    Running   ...
-$ snaptel task watch f3ad05b2-3706-4991-ab29-c96e15813893
 ```
 
-## Documentation
-TBD
+_Note: Truncated results for brevity._
 
-### Issues and Roadmap
+### Publisher Output
+The SignalFx plugin **will only publish numeric values (int64 and float64)** using the SignalFx [Gauge and GaugeF](https://github.com/signalfx/golib/tree/master/sfxclient) respectively.  The code attempts to convert numeric values; e.g. uint --> int64.  All other metric values will be ignored (e.g. strings).  The metrics will be sent with the namespace, metric value (converted), and the hostname as a dimension. This makes it simple to identify and use the incoming values in SignalFx.
+
+## Issues and Roadmap
 * **Testing:** The testing being done is rudimentary at best. Need to improve the testing.
 
 _Note: Please let me know if you find a bug or have feedbck on how to improve the collector._
