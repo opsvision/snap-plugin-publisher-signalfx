@@ -141,16 +141,15 @@ Setting|Description|Required?|
 Once the task file has been created, you can create and watch the task.
 ```
 $ snaptel task create -t signalfx.yaml
-Plugin loaded
-Name: signalfx
-Version: 1
-Type: publisher
-Signed: false
-Loaded Time: Tue, 24 Jan 2017 20:45:48 UTC
+Using task manifest to create task
+Task created
+ID: 72869b36-def6-47c4-9db2-822f93bb9d1f
+Name: Task-72869b36-def6-47c4-9db2-822f93bb9d1f
+State: Running
 
 $ snaptel task list
 ID                                       NAME                                         STATE     ...
-f3ad05b2-3706-4991-ab29-c96e15813893     Task-f3ad05b2-3706-4991-ab29-c96e15813893    Running   ...
+72869b36-def6-47c4-9db2-822f93bb9d1f     Task-72869b36-def6-47c4-9db2-822f93bb9d1f    Running   ...
 ```
 
 _Note: Truncated results for brevity._
