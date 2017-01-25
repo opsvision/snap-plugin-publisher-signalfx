@@ -104,11 +104,12 @@ Loaded Time: Tue, 24 Jan 2017 20:45:48 UTC
 ```
 
 #### Task File
-You need to create or update a task file to use the SignalFx publisher plugin. We have provided an example, _tasks/awssqs.yaml_ shown below. In our example, we utilize the psutil collector so we have some data to work with. There are two (2) configuration settings you can use.
+You need to create or update a task file to use the SignalFx publisher plugin. We have provided an example, _tasks/awssqs.yaml_ shown below. In our example, we utilize the psutil collector so we have some data to work with. There are three (3) configuration settings you can use.
 
 Setting|Description|Required?|
 |-------|-----------|---------|
 |debug_file|An absolute path to a log file - this makes debugging easier.|No|
+|hostname|The hostname to use; if absent, the plugin will attempt to determine the hostname.|No|
 |token|The SignalFx [API token](https://developers.signalfx.com).|Yes|
 
 
@@ -134,6 +135,7 @@ Setting|Description|Required?|
           config:
             token: "1234ABCD"
             debug_file: "/tmp/signalfx-debug.log"
+            hostname: "spiderman"
 ```
 
 Once the task file has been created, you can create and watch the task.
